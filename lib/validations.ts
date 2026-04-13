@@ -59,6 +59,19 @@ export const loginSchema = z.object({
     password: z.string().min(1, "Password is required"),
 });
 
+// Used by the unified login form — accepts email OR any 10-digit mobile number
+export const loginIdentifierSchema = z.object({
+    identifier: z
+        .string()
+        .min(1, "Email or mobile number is required")
+        .refine((val) => {
+            const isEmail = z.string().email().safeParse(val).success;
+            const isMobile = /^\d{10}$/.test(val);
+            return isEmail || isMobile;
+        }, "Enter a valid email address or 10-digit mobile number"),
+    password: z.string().min(1, "Password is required"),
+});
+
 export const forgotPasswordSchema = z.object({
     email: emailSchema,
 });
@@ -80,6 +93,7 @@ export const dateRangeSchema = z
 // Types for inferring schemas
 export type StudentDetailsInput = z.infer<typeof studentDetailsSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type LoginIdentifierInput = z.infer<typeof loginIdentifierSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type DateRangeInput = z.infer<typeof dateRangeSchema>;

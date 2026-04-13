@@ -17,10 +17,19 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
         }
 
-        // Verify role
-        const role = user.app_metadata?.app_role;
-        if (role !== 'Student') {
+        // Verify role via the users table — the same source of truth the middleware uses.
+        // app_metadata.app_role is not set in this project, so we don't rely on it.
+        const { data: appUser } = await adminSupabase
+            .from('users')
+            .select('role, status')
+            .eq('id', user.id)
+            .single();
+
+        if (!appUser || appUser.role?.toLowerCase() !== 'student') {
             return NextResponse.json({ error: 'Access restricted to students.' }, { status: 403 });
+        }
+        if (appUser.status !== 'Active') {
+            return NextResponse.json({ error: 'Your account is inactive.' }, { status: 403 });
         }
 
         // 2. Parse and Validate Form Data

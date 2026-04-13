@@ -11,8 +11,8 @@ export async function login(formData: FormData) {
 
     let email = identifier
 
-    // Check if identifier is a mobile number (10 digits starting with 6-9)
-    const isMobile = /^[6-9][0-9]{9}$/.test(identifier)
+    // Check if identifier is a mobile number (any 10-digit number)
+    const isMobile = /^\d{10}$/.test(identifier)
 
     if (isMobile) {
         // Search for the email associated with this mobile number across all 3 user tables
@@ -100,7 +100,7 @@ export async function login(formData: FormData) {
 
     if (role === 'teacher') {
         if (appUser.is_first_login) {
-            return redirect('/teacher/force-password-change')
+            return redirect('/teacher/change-password')
         }
         return redirect('/teacher/dashboard')
     }
@@ -191,14 +191,23 @@ export async function updateTeacherPassword(formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { error: 'Session expired. Please login again.' }
 
-    // Update teachers table
-    const { error: dbError } = await supabase
-        .from('teachers')
-        .update({ is_first_login: false, updated_at: new Date() })
-        .eq('teacher_id', user.id)
+    // Update both tables atomically:
+    // 1. users.is_first_login — this is what the login action checks on every sign-in
+    // 2. teachers.is_first_login — kept in sync for the teacher profile record
+    const [{ error: usersError }, { error: teachersError }] = await Promise.all([
+        supabase
+            .from('users')
+            .update({ is_first_login: false })
+            .eq('id', user.id),
+        supabase
+            .from('teachers')
+            .update({ is_first_login: false, updated_at: new Date() })
+            .eq('teacher_id', user.id),
+    ])
 
-    if (dbError) {
-        return { error: 'Failed to update user status.' }
+    if (usersError || teachersError) {
+        console.error('[AUTH] Failed to clear is_first_login:', usersError?.message, teachersError?.message)
+        return { error: 'Failed to update account status.' }
     }
 
     return redirect('/teacher/dashboard')

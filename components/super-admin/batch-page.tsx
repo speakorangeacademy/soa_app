@@ -113,8 +113,8 @@ export default function BatchPage() {
                     <p style={{ color: 'var(--color-text-muted)' }}>Manage academic schedules, teacher assignments, and capacity.</p>
                 </div>
 
-                <button onClick={() => { setEditingBatch(null); setIsModalOpen(true); }}>
-                    <Plus size={18} />
+                <button onClick={() => { setEditingBatch(null); setIsModalOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '16px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 700, marginRight: '4px' }}>+</span>
                     Create New Batch
                 </button>
             </div>

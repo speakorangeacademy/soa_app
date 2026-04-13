@@ -122,7 +122,7 @@ export default function CreateTeacherForm() {
                 <div className="form-group">
                     <label>Full Name</label>
                     <div style={{ position: 'relative' }}>
-                        <User size={18} className="input-icon" />
+                        <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
                         <input
                             {...register('name')}
                             placeholder="Teacher's Full Name"
@@ -137,7 +137,7 @@ export default function CreateTeacherForm() {
                 <div className="form-group">
                     <label>Email Address</label>
                     <div style={{ position: 'relative' }}>
-                        <Mail size={18} className="input-icon" />
+                        <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
                         <input
                             {...register('email')}
                             type="email"
@@ -153,7 +153,7 @@ export default function CreateTeacherForm() {
                 <div className="form-group">
                     <label>Mobile Number</label>
                     <div style={{ position: 'relative' }}>
-                        <Phone size={18} className="input-icon" />
+                        <Phone size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
                         <input
                             {...register('mobile')}
                             placeholder="9876543210"
@@ -169,7 +169,7 @@ export default function CreateTeacherForm() {
                     <label>Temporary Password</label>
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <div style={{ position: 'relative', flex: 1 }}>
-                            <Lock size={18} className="input-icon" />
+                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
                             <input
                                 {...register('password')}
                                 readOnly
@@ -272,14 +272,6 @@ export default function CreateTeacherForm() {
                     font-size: 0.875rem;
                     fontWeight: 600;
                     color: var(--color-text-muted);
-                }
-                .input-icon {
-                    position: absolute;
-                    left: 12px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: var(--color-text-muted);
-                    pointer-events: none;
                 }
                 .regenerate-btn {
                     width: 44px;

@@ -4,7 +4,7 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
     Mail, Phone, Calendar, Loader2, AlertCircle,
-    CheckCircle2, XCircle, Clock
+    CheckCircle2, Clock, Users
 } from 'lucide-react'
 import { Badge } from '@/components/common/ui'
 

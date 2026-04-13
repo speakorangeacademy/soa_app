@@ -24,6 +24,7 @@
     "react-hook-form": "^7.50.1",
     "recharts": "^3.8.0",
     "resend": "^6.9.3",
+    "sonner": "^1.7.4",
     "tailwindcss-animate": "^1.0.7",
     "xlsx": "^0.18.5",
     "zod": "^3.22.4"

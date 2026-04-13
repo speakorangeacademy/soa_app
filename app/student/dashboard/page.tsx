@@ -16,10 +16,10 @@ import {
     ShieldCheck,
     ChevronRight,
     LogOut,
-    Settings,
-    Upload
+    Settings
 } from 'lucide-react'
 import { Badge } from '@/components/common/ui'
+import { ReuploadProofForm } from '@/components/student/ReuploadProofForm'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -155,6 +155,74 @@ export default function StudentDashboard() {
                 </header>
             </section>
 
+            {/* ── Rejection Alert Banner (shown only when payment is Rejected) ── */}
+            {payment?.verification_status === 'Rejected' && (
+                <section className="animate-fade-up" style={{ animationDelay: '40ms' }}>
+                    <div style={{
+                        border: '1.5px solid rgba(229,57,53,0.25)',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                    }}>
+                        {/* Red header strip */}
+                        <div style={{
+                            background: 'rgba(229,57,53,0.08)',
+                            borderBottom: '1px solid rgba(229,57,53,0.15)',
+                            padding: '1rem 1.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                        }}>
+                            <div style={{
+                                width: '36px', height: '36px', borderRadius: '50%',
+                                backgroundColor: 'rgba(229,57,53,0.12)',
+                                color: 'var(--color-danger)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                flexShrink: 0,
+                            }}>
+                                <AlertCircle size={20} />
+                            </div>
+                            <div>
+                                <p style={{ fontWeight: 700, color: 'var(--color-danger)', fontFamily: 'Outfit, sans-serif', fontSize: '1rem' }}>
+                                    Payment Rejected — Action Required
+                                </p>
+                                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                                    Your payment proof could not be verified. Please review the reason below.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Reason + conditional reupload */}
+                        <div style={{ padding: '1.25rem 1.5rem', backgroundColor: 'rgba(229,57,53,0.03)' }}>
+                            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-danger)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>
+                                Reason
+                            </p>
+                            <p style={{ fontSize: '0.9375rem', color: 'var(--color-text)', fontWeight: 500, lineHeight: 1.5 }}>
+                                {payment.rejection_remarks || 'Please contact administration for details.'}
+                            </p>
+
+                            {payment.reupload_allowed ? (
+                                <ReuploadProofForm
+                                    paymentId={payment.payment_id}
+                                    onSuccess={() => refetch()}
+                                />
+                            ) : (
+                                <div style={{
+                                    marginTop: '1rem',
+                                    padding: '0.875rem 1rem',
+                                    backgroundColor: 'rgba(139,115,85,0.06)',
+                                    border: '1px solid var(--color-border)',
+                                    borderRadius: '10px',
+                                    fontSize: '0.875rem',
+                                    color: 'var(--color-text-muted)',
+                                }}>
+                                    Re-upload is not permitted for this payment. Please contact the academy directly.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </section>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* 2. Payment Status Card */}
                 <section style={{ animationDelay: '60ms' }} className="animate-fade-up h-full">
@@ -225,21 +293,7 @@ export default function StudentDashboard() {
                                         </div>
                                     </div>
 
-                                    {payment.verification_status === 'Rejected' && (
-                                        <div style={{
-                                            marginTop: '1.5rem',
-                                            padding: '1rem',
-                                            backgroundColor: 'rgba(229, 57, 53, 0.05)',
-                                            border: '1px solid rgba(229, 57, 53, 0.1)',
-                                            borderRadius: '8px'
-                                        }}>
-                                            <div style={{ display: 'flex', gap: '0.5rem', color: 'var(--color-danger)' }}>
-                                                <AlertCircle size={16} />
-                                                <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Reason for rejection</span>
-                                            </div>
-                                            <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>{payment.rejection_remarks || 'Please contact administration for details.'}</p>
-                                        </div>
-                                    )}
+                                    {/* Rejection detail is shown in the full-width banner above the grid */}
                                 </div>
 
                                 {payment.verification_status === 'Approved' && payment.receipt && (
@@ -259,22 +313,7 @@ export default function StudentDashboard() {
                                     </button>
                                 )}
 
-                                {payment.verification_status === 'Rejected' && payment.reupload_allowed && (
-                                    <button
-                                        onClick={() => router.push(`/student/reupload/${payment.payment_id}`)}
-                                        style={{
-                                            marginTop: '2rem',
-                                            width: '100%',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '0.75rem',
-                                            backgroundColor: 'var(--color-danger)'
-                                        }}
-                                    >
-                                        <Upload size={18} /> Re-upload Screenshot
-                                    </button>
-                                )}
+                                {/* Re-upload form lives in the rejection banner above the grid */}
                             </div>
                         )}
                     </div>

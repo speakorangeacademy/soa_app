@@ -22,28 +22,33 @@ async function adminPaymentRejectionHandler(
     const supabase = createClient();
 
     try {
-        const { rejection_reason } = await request.json();
+        const body = await request.json();
+        const { rejection_reason, allow_reupload = true } = body;
 
-        if (!rejection_reason || rejection_reason.length < 10) {
-            return NextResponse.json({ error: 'Valid rejection reason required' }, { status: 400 });
+        if (!rejection_reason || rejection_reason.trim().length < 10) {
+            return NextResponse.json({ error: 'Valid rejection reason required (min 10 characters)' }, { status: 400 });
         }
 
-        // 1. Fetch student info for email
+        // 1. Fetch payment + verify it is still Pending before acting
         const { data: payment } = await supabase
             .from('payments')
-            .select('student_id, students(student_full_name, email_address)')
+            .select('student_id, verification_status, students(student_full_name, email_address)')
             .eq('payment_id', params.id)
             .single();
 
         if (!payment) return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
+        if (payment.verification_status !== 'Pending') {
+            return NextResponse.json({ error: 'Only pending payments can be rejected' }, { status: 400 });
+        }
 
-        // 2. Update status
+        // 2. Update status, reason, and re-upload permission atomically
         const { data: { user } } = await supabase.auth.getUser();
         const { error: updateError } = await supabase
             .from('payments')
             .update({
                 verification_status: 'Rejected',
-                rejection_remarks: rejection_reason,
+                rejection_remarks: rejection_reason.trim(),
+                reupload_allowed: allow_reupload,
                 verified_by: user?.id,
                 verification_timestamp: new Date().toISOString()
             })

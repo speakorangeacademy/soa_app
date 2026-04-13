@@ -3,101 +3,186 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema, LoginInput } from '@/lib/validations'
-import { studentLogin } from '@/app/auth/student/auth-actions'
-import { InlineButtonLoader, ApiError, CardSkeleton } from '@/components/common/ui'
-import { Mail, Lock, AlertCircle } from 'lucide-react'
+import { loginIdentifierSchema, LoginIdentifierInput } from '@/lib/validations'
+import { login } from '@/app/auth/actions'
+import { ApiError } from '@/components/common/ui'
+import { AtSign, Lock, Eye, EyeOff, LogIn, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import Link from 'next/link'
 
-export function LoginForm() {
-    const [serverError, setServerError] = useState<string | null>(null)
+interface LoginFormProps {
+    /** Called when the user clicks "Create one for free" — useful in tab-based layouts */
+    onCreateAccount?: () => void
+}
+
+export function LoginForm({ onCreateAccount }: LoginFormProps) {
+    const [showPassword, setShowPassword] = useState(false)
+
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<LoginInput>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<LoginIdentifierInput>({
+        resolver: zodResolver(loginIdentifierSchema),
         mode: 'onBlur',
     })
 
-    const onSubmit = async (data: LoginInput) => {
-        setServerError(null)
+    const onSubmit = async (data: LoginIdentifierInput) => {
+        // Build FormData to match the server action's expected shape
+        const formData = new FormData()
+        formData.append('identifier', data.identifier.trim())
+        formData.append('password', data.password)
+
         try {
-            const result = await studentLogin(data)
+            const result = await login(formData)
             if (result?.error) {
-                setServerError(result.error)
+                toast.error(result.error, { duration: 4000 })
             }
-        } catch (err) {
-            setServerError('An unexpected error occurred. Please try again.')
+            // Successful login triggers a redirect inside `login()` — no further
+            // handling needed here; the component will unmount on navigation.
+        } catch (err: any) {
+            // Next.js redirect throws an internal error with message 'NEXT_REDIRECT'.
+            // That is expected — don't show an error toast for it.
+            if (err?.message !== 'NEXT_REDIRECT') {
+                toast.error('An unexpected error occurred. Please try again.')
+            }
         }
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {serverError && (
-                <div className="p-4 bg-danger/10 border border-danger/20 rounded-lg flex items-start gap-3 text-danger text-sm animate-in zoom-in-95 duration-200">
-                    <AlertCircle size={18} className="shrink-0 mt-0.5" />
-                    <span>{serverError}</span>
-                </div>
-            )}
-
-            <div className="space-y-2">
-                <label className="text-sm font-semibold text-text ml-1">Email Address</label>
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500"
+            noValidate
+        >
+            {/* ── Identifier field (email or mobile) ─────────────────────────── */}
+            <div className="space-y-1.5">
+                <label
+                    htmlFor="login-identifier"
+                    className="block text-sm font-semibold text-text ml-0.5"
+                >
+                    Email or Mobile Number
+                </label>
                 <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted transition-colors group-focus-within:text-primary">
-                        <Mail size={18} />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted transition-colors group-focus-within:text-primary">
+                        <AtSign size={17} />
                     </div>
                     <input
-                        {...register('email')}
-                        type="email"
-                        autoComplete="email"
-                        className={`w-full pl-10 pr-4 py-3 bg-surface border ${errors.email ? 'border-danger' : 'border-border'} rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 tap-target`}
-                        placeholder="you@example.com"
+                        {...register('identifier')}
+                        id="login-identifier"
+                        type="text"
+                        // inputMode="email" lets mobile keyboards show @ but still allows
+                        // numeric entry — the user can switch if typing a mobile number
+                        inputMode="email"
+                        autoComplete="username"
+                        spellCheck={false}
+                        autoCapitalize="none"
+                        className={`
+                            w-full pl-10 pr-4 py-3 bg-surface text-text
+                            border rounded-xl transition-all duration-200
+                            focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+                            placeholder:text-muted/50 disabled:opacity-60
+                            ${errors.identifier ? 'border-danger' : 'border-border'}
+                        `}
+                        placeholder="name@example.com  or  9876543210"
                         disabled={isSubmitting}
                     />
                 </div>
-                {errors.email && <ApiError message={errors.email.message} />}
+                {errors.identifier && <ApiError message={errors.identifier.message} />}
             </div>
 
-            <div className="space-y-2">
-                <div className="flex items-center justify-between px-1">
-                    <label className="text-sm font-semibold text-text">Password</label>
-                    <a href="/auth/forgot-password" size="sm" className="text-xs font-semibold text-muted hover:text-primary transition-colors">
-                        Forgot?
-                    </a>
+            {/* ── Password field with show/hide toggle ───────────────────────── */}
+            <div className="space-y-1.5">
+                <div className="flex items-center justify-between ml-0.5 mr-0.5">
+                    <label
+                        htmlFor="login-password"
+                        className="text-sm font-semibold text-text"
+                    >
+                        Password
+                    </label>
+                    <Link
+                        href="/forgot-password"
+                        className="text-xs font-medium text-muted hover:text-primary transition-colors"
+                        tabIndex={0}
+                    >
+                        Forgot password?
+                    </Link>
                 </div>
                 <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted transition-colors group-focus-within:text-primary">
-                        <Lock size={18} />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted transition-colors group-focus-within:text-primary">
+                        <Lock size={17} />
                     </div>
                     <input
                         {...register('password')}
-                        type="password"
+                        id="login-password"
+                        type={showPassword ? 'text' : 'password'}
                         autoComplete="current-password"
-                        className={`w-full pl-10 pr-4 py-3 bg-surface border ${errors.password ? 'border-danger' : 'border-border'} rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 tap-target`}
+                        className={`
+                            w-full pl-10 pr-11 py-3 bg-surface text-text
+                            border rounded-xl transition-all duration-200
+                            focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+                            placeholder:text-muted/50 disabled:opacity-60
+                            ${errors.password ? 'border-danger' : 'border-border'}
+                        `}
                         placeholder="••••••••"
                         disabled={isSubmitting}
                     />
+                    {/* Eye toggle — keyboard accessible, won't submit the form */}
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-muted hover:text-primary transition-colors"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        tabIndex={0}
+                    >
+                        {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
                 </div>
                 {errors.password && <ApiError message={errors.password.message} />}
             </div>
 
-            <InlineButtonLoader
+            {/* ── Submit ─────────────────────────────────────────────────────── */}
+            <button
                 type="submit"
-                isLoading={isSubmitting}
-                className="w-full py-3 h-[48px] bg-primary text-bg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] transition-all duration-200"
+                disabled={isSubmitting}
+                className="
+                    w-full h-[50px] mt-1 flex items-center justify-center gap-2
+                    bg-primary text-white font-bold rounded-xl
+                    shadow-md shadow-primary/20
+                    hover:bg-accent hover:shadow-lg hover:shadow-primary/30
+                    active:scale-[0.98] transition-all duration-200
+                    disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100
+                "
+                style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-                Sign In
-            </InlineButtonLoader>
+                {isSubmitting ? (
+                    <Loader2 size={20} className="animate-spin" />
+                ) : (
+                    <>
+                        Sign In <LogIn size={17} />
+                    </>
+                )}
+            </button>
 
-            <p className="text-center text-sm text-muted">
-                Don't have an account?{' '}
-                <button
-                    type="button"
-                    className="font-bold text-primary hover:text-accent transition-colors underline underline-offset-4"
-                    onClick={() => {/* Parent will handle tab switch */ }}
-                >
-                    Create one for free
-                </button>
+            {/* ── Register link ──────────────────────────────────────────────── */}
+            <p className="text-center text-sm text-muted pt-1">
+                Don&apos;t have an account?{' '}
+                {onCreateAccount ? (
+                    <button
+                        type="button"
+                        onClick={onCreateAccount}
+                        className="font-semibold text-primary hover:text-accent transition-colors underline underline-offset-4"
+                    >
+                        Create one for free
+                    </button>
+                ) : (
+                    <Link
+                        href="/register"
+                        className="font-semibold text-primary hover:text-accent transition-colors underline underline-offset-4"
+                    >
+                        Join as Student
+                    </Link>
+                )}
             </p>
         </form>
     )

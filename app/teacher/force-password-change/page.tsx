@@ -105,7 +105,7 @@ export default function ForcePasswordChangePage() {
                     <div className="form-group">
                         <label>Current Password</label>
                         <div style={{ position: 'relative' }}>
-                            <Lock size={18} className="input-icon" />
+                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
                             <input
                                 {...register('currentPassword')}
                                 type="password"
@@ -121,7 +121,7 @@ export default function ForcePasswordChangePage() {
                     <div className="form-group">
                         <label>New Secure Password</label>
                         <div style={{ position: 'relative' }}>
-                            <Lock size={18} className="input-icon" />
+                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
                             <input
                                 {...register('newPassword')}
                                 type="password"
@@ -137,7 +137,7 @@ export default function ForcePasswordChangePage() {
                     <div className="form-group">
                         <label>Confirm New Password</label>
                         <div style={{ position: 'relative' }}>
-                            <Lock size={18} className="input-icon" />
+                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
                             <input
                                 {...register('confirmPassword')}
                                 type="password"
@@ -181,14 +181,6 @@ export default function ForcePasswordChangePage() {
                     font-size: 0.875rem;
                     font-weight: 600;
                     color: var(--color-text-muted);
-                }
-                .input-icon {
-                    position: absolute;
-                    left: 12px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: var(--color-text-muted);
-                    pointer-events: none;
                 }
                 .alert-error {
                     padding: 0.75rem;

@@ -1,7 +1,9 @@
+
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Providers } from '@/components/providers/query-provider'
-import ResponsiveNavbar from '@/components/common/responsive-navbar'
+import NavbarWrapper from '@/components/common/NavbarWrapper'
+import { Toaster } from '@/components/ui/toaster'
 
 export const metadata: Metadata = {
     title: 'Speak Orange Academy',
@@ -26,10 +28,12 @@ export default function RootLayout({
         <html lang="en">
             <body className="antialiased min-h-screen">
                 <Providers>
-                    <ResponsiveNavbar />
-                    <main className="w-full">
-                        {children}
-                    </main>
+                    <NavbarWrapper>
+                        <main className="w-full">
+                            {children}
+                        </main>
+                    </NavbarWrapper>
+                    <Toaster />
                 </Providers>
             </body>
         </html>

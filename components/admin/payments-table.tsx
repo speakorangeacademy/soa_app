@@ -31,9 +31,11 @@ interface PaymentsTableProps {
         totalPages: number
     }
     onPageChange: (page: number) => void
+    /** Triggered after any action (approve/reject) — use this to refetch the list. */
+    onActionComplete?: () => void
 }
 
-export default function PaymentsTable({ payments, isLoading, pagination, onPageChange }: PaymentsTableProps) {
+export default function PaymentsTable({ payments, isLoading, pagination, onPageChange, onActionComplete }: PaymentsTableProps) {
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -167,6 +169,10 @@ export default function PaymentsTable({ payments, isLoading, pagination, onPageC
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 payment={selectedPayment}
+                onActionComplete={() => {
+                    setIsModalOpen(false)
+                    onActionComplete?.()
+                }}
             />
 
             <style jsx>{`

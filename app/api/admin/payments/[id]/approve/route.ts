@@ -129,7 +129,18 @@ async function adminPaymentApprovalHandler(
         });
 
     } catch (error: any) {
-        return NextResponse.json({ error: error.message || 'Approval failed' }, { status: 500 });
+        const message: string = error.message || '';
+        if (
+            message.includes('Maximum capacity reached') ||
+            message.includes('already full') ||
+            message.includes('batch is full')
+        ) {
+            return NextResponse.json(
+                { error: 'This batch has just filled up. The enrollment was not created. You may need to reassign the student to another batch.' },
+                { status: 409 }
+            );
+        }
+        return NextResponse.json({ error: message || 'Approval failed' }, { status: 500 });
     }
 }
 

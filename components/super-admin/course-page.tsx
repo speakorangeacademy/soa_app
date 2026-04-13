@@ -132,9 +132,9 @@ export default function CoursePage({ role }: CoursePageProps) {
                 </div>
 
                 {isSuperAdmin && (
-                    <button onClick={() => { setEditingCourse(null); setIsModalOpen(true); }}>
-                        <Plus size={18} />
-                        Add New Course
+                    <button onClick={() => { setEditingCourse(null); setIsModalOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '16px' }}>
+                        <span style={{ fontSize: '20px', fontWeight: 700, marginRight: '4px' }}>+</span>
+                        Add New Features
                     </button>
                 )}
             </div>
