@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 
 /**
@@ -20,8 +21,9 @@ export async function GET() {
             return NextResponse.json({ error: 'Access denied.' }, { status: 403 });
         }
 
-        // 2. Fetch teachers from users table
-        const { data: teachers, error: dbError } = await supabase
+        // 2. Fetch teachers from users table (adminClient bypasses RLS)
+        const adminClient = createAdminClient();
+        const { data: teachers, error: dbError } = await adminClient
             .from('users')
             .select('id, name, email, mobile, status, is_first_login, created_at')
             .eq('role', 'teacher')

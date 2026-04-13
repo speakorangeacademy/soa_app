@@ -116,7 +116,7 @@ async function generateReceiptHandler(request: Request) {
                 })
                 .eq('payment_id', payment_id);
         } else {
-            const { data: newReceipt } = await supabase
+            const { data: newReceipt, error: insertError } = await supabase
                 .from('receipts')
                 .insert({
                     receipt_number: receiptNumber,
@@ -132,9 +132,11 @@ async function generateReceiptHandler(request: Request) {
                 .select()
                 .single();
 
-            if (newReceipt) {
-                receiptId = newReceipt.receipt_id;
+            if (insertError || !newReceipt) {
+                console.error('Receipt insert failed:', insertError);
+                return NextResponse.json({ error: 'Failed to save receipt record.' }, { status: 500 });
             }
+            receiptId = newReceipt.receipt_id;
         }
 
         return NextResponse.json({

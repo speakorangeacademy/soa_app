@@ -1,18 +1,17 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/utils/supabase/client'
 import { Badge, Skeleton } from '@/components/common/ui'
 import { Clock, Users, AlertCircle, CheckCircle2, Calendar } from 'lucide-react'
 
 interface Batch {
-    id: string
-    name: string
-    schedule: string
+    batch_id: string
+    batch_name: string
+    batch_timing: string
+    batch_status: string
     start_date: string
     max_capacity: number
     current_enrollment_count: number
-    status: 'Open' | 'Full' | 'Closed'
 }
 
 interface BatchStatusListProps {
@@ -25,60 +24,40 @@ export default function BatchStatusList({ courseId, selectedBatchId, onSelect }:
     const [batches, setBatches] = useState<Batch[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const supabase = createClient()
 
     const fetchBatches = useCallback(async () => {
+        if (!courseId) {
+            setBatches([])
+            setLoading(false)
+            return
+        }
+        setLoading(true)
+        setError(null)
         try {
-            const { data, error: fetchError } = await supabase
-                .from('batches')
-                .select('id, name, schedule, start_date, max_capacity, current_enrollment_count, status')
-                .eq('course_id', courseId)
-                .order('start_date', { ascending: true })
-
-            if (fetchError) throw fetchError
-            setBatches(data as Batch[])
+            const res = await fetch(`/api/batches/public?course_id=${courseId}`)
+            if (!res.ok) throw new Error('Failed to load batches')
+            const data = await res.json()
+            setBatches(Array.isArray(data) ? data : [])
         } catch (err) {
             console.error('Error fetching batches:', err)
             setError('Unable to load batches. Please refresh the page.')
         } finally {
             setLoading(false)
         }
-    }, [courseId, supabase])
+    }, [courseId])
 
     useEffect(() => {
-        if (!courseId) {
-            setBatches([])
-            setLoading(false)
-            return
-        }
-
-        setLoading(true)
         fetchBatches()
+    }, [fetchBatches])
 
-        const channel = supabase
-            .channel(`batch-status-${courseId}`)
-            .on('postgres_changes',
-                { event: '*', schema: 'public', table: 'batches', filter: `course_id=eq.${courseId}` },
-                () => {
-                    fetchBatches()
-                }
-            )
-            .subscribe()
-
-        return () => {
-            supabase.removeChannel(channel)
-        }
-    }, [courseId, fetchBatches, supabase])
-
-    // Auto-deselect if selected batch becomes full or closed
+    // Auto-deselect if selected batch becomes full
     useEffect(() => {
         if (selectedBatchId) {
-            const selectedBatch = batches.find(b => b.id === selectedBatchId)
+            const selectedBatch = batches.find(b => b.batch_id === selectedBatchId)
             if (selectedBatch) {
                 const availableSeats = selectedBatch.max_capacity - selectedBatch.current_enrollment_count
-                if (selectedBatch.status !== 'Open' || availableSeats <= 0) {
-                    onSelect('') // Clear selection in parent
-                    // Use a slightly delayed alert or toast to avoid render-cycle issues
+                if (selectedBatch.batch_status !== 'Open' || availableSeats <= 0) {
+                    onSelect('')
                     setTimeout(() => {
                         alert('Selected batch just became full or unavailable. Please choose another batch.')
                     }, 0)
@@ -87,9 +66,17 @@ export default function BatchStatusList({ courseId, selectedBatchId, onSelect }:
         }
     }, [batches, selectedBatchId, onSelect])
 
+    if (!courseId) {
+        return (
+            <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: 'rgba(255,140,66,0.02)', border: '1px dashed var(--color-border)', borderRadius: '12px' }}>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>Select a course above to see available batches.</p>
+            </div>
+        )
+    }
+
     if (loading) {
         return (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[1, 2].map(i => (
                     <Skeleton key={i} style={{ height: '100px', width: '100%', borderRadius: '12px' }} />
                 ))}
@@ -118,18 +105,16 @@ export default function BatchStatusList({ courseId, selectedBatchId, onSelect }:
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {batches.map((batch, index) => {
                 const availableSeats = batch.max_capacity - batch.current_enrollment_count
-                const isFull = batch.status === 'Full' || availableSeats <= 0
-                const isClosed = batch.status === 'Closed'
+                const isFull = batch.batch_status === 'Full' || availableSeats <= 0
+                const isClosed = batch.batch_status === 'Closed'
                 const isDisabled = isFull || isClosed
-                const isSelected = selectedBatchId === batch.id
+                const isSelected = selectedBatchId === batch.batch_id
 
                 return (
                     <div
-                        key={batch.id}
-                        onClick={() => !isDisabled && onSelect(batch.id)}
-                        className="animate-fade-up"
+                        key={batch.batch_id}
+                        onClick={() => !isDisabled && onSelect(batch.batch_id)}
                         style={{
-                            animationDelay: `${index * 60}ms`,
                             padding: '1.25rem',
                             borderRadius: '12px',
                             border: `2px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`,
@@ -148,8 +133,8 @@ export default function BatchStatusList({ courseId, selectedBatchId, onSelect }:
                     >
                         <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                <h4 style={{ fontWeight: 600, fontSize: '1.05rem', color: isSelected ? 'var(--color-primary)' : 'var(--color-text)' }}>
-                                    {batch.name}
+                                <h4 style={{ fontWeight: 600, fontSize: '1.05rem', color: isSelected ? 'var(--color-primary)' : 'var(--color-text)', margin: 0 }}>
+                                    {batch.batch_name}
                                 </h4>
                                 {isSelected && <CheckCircle2 size={18} style={{ color: 'var(--color-primary)' }} />}
                             </div>
@@ -157,7 +142,7 @@ export default function BatchStatusList({ courseId, selectedBatchId, onSelect }:
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
                                     <Clock size={14} style={{ opacity: 0.7 }} />
-                                    <span>{batch.schedule}</span>
+                                    <span>{batch.batch_timing}</span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
                                     <Users size={14} style={{ opacity: 0.7 }} />
@@ -180,24 +165,13 @@ export default function BatchStatusList({ courseId, selectedBatchId, onSelect }:
 
                         {isDisabled && (
                             <div
-                                title={isClosed ? "This batch is closed" : "This batch is full"}
+                                title={isClosed ? 'This batch is closed' : 'This batch is full'}
                                 style={{ position: 'absolute', inset: 0, zIndex: 1 }}
                             />
                         )}
                     </div>
                 )
             })}
-
-            <style jsx>{`
-                .animate-fade-up {
-                    animation: fadeUp 0.4s ease-out forwards;
-                    opacity: 0;
-                    transform: translateY(10px);
-                }
-                @keyframes fadeUp {
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </div>
     )
 }

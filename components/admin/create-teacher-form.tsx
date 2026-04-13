@@ -210,53 +210,97 @@ export default function CreateTeacherForm() {
                 isOpen={!!successData}
                 onClose={() => setSuccessData(null)}
                 title="Teacher Credentials Generated"
+                maxWidth="max-w-md"
             >
                 <div className="success-modal-content">
+                    {/* Success Icon */}
                     <div className="success-icon-wrapper">
                         <CheckCircle2 size={48} />
                     </div>
 
-                    <h3 style={{ margin: '1rem 0 0.5rem' }}>Account Provisioned Successfully</h3>
+                    {/* Heading */}
+                    <h3 style={{
+                        fontSize: '1.125rem',
+                        fontWeight: 600,
+                        color: 'var(--color-text)',
+                        margin: '0.5rem 0 0',
+                        padding: '0'
+                    }}>Account Provisioned Successfully</h3>
+
+                    {/* Description */}
                     <p className="modal-description">
                         The account has been created. Use the credentials below to allow the teacher to sign in for the first time.
                     </p>
 
-                    <div className="credential-stack">
-                        {/* Email */}
-                        <div className="credential-item">
-                            <div className="item-labels">
-                                <span className="item-tag">LOGIN EMAIL</span>
-                                <span className="item-value">{successData?.email}</span>
+                    {/* Credentials Section */}
+                    <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                        <div className="credential-stack">
+                            {/* Email */}
+                            <div className="credential-item">
+                                <div className="item-labels">
+                                    <span className="item-tag">LOGIN EMAIL</span>
+                                    <span className="item-value">{successData?.email}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => successData && copyToClipboard(successData.email)}
+                                    className="copy-btn"
+                                    aria-label="Copy email"
+                                >
+                                    <Copy size={18} />
+                                </button>
                             </div>
-                            <button onClick={() => successData && copyToClipboard(successData.email)} className="copy-btn">
-                                <Copy size={18} />
-                            </button>
-                        </div>
 
-                        {/* Password */}
-                        <div className="credential-item">
-                            <div className="item-labels">
-                                <span className="item-tag">TEMPORARY PASSWORD</span>
-                                <span className="item-value" style={{ fontFamily: 'monospace' }}>{successData?.pass}</span>
+                            {/* Password */}
+                            <div className="credential-item">
+                                <div className="item-labels">
+                                    <span className="item-tag">TEMPORARY PASSWORD</span>
+                                    <span className="item-value" style={{ fontFamily: 'monospace', overflowWrap: 'break-word', wordBreak: 'break-all' }}>{successData?.pass}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => successData && copyToClipboard(successData.pass)}
+                                    className="copy-btn"
+                                    aria-label="Copy password"
+                                    style={{ flexShrink: 0, marginLeft: '0.75rem' }}
+                                >
+                                    <Copy size={18} />
+                                </button>
                             </div>
-                            <button onClick={() => successData && copyToClipboard(successData.pass)} className="copy-btn">
-                                <Copy size={18} />
-                            </button>
                         </div>
                     </div>
 
+                    {/* Instruction Box */}
                     <div className="instruction-box">
-                        <Info size={16} />
-                        <p>Please email these credentials to the teacher. They will be required to update their password on first login.</p>
+                        <Info size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <p style={{ margin: 0 }}>Please email these credentials to the teacher. They will be required to update their password on first login.</p>
                     </div>
 
-                    <div style={{ height: '20px' }}>
-                        <p style={{ fontSize: '0.875rem', color: 'var(--color-success)', opacity: copied ? 1 : 0, transition: '0.2s', textAlign: 'center' }}>
-                            Copied to clipboard!
+                    {/* Feedback Message */}
+                    <div style={{
+                        height: '1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <p style={{
+                            fontSize: '0.875rem',
+                            color: 'var(--color-success)',
+                            opacity: copied ? 1 : 0,
+                            transition: 'opacity 0.2s ease-out',
+                            margin: 0
+                        }}>
+                            ✓ Copied to clipboard!
                         </p>
                     </div>
 
-                    <button onClick={() => setSuccessData(null)} className="done-btn">
+                    {/* Action Button */}
+                    <button
+                        type="button"
+                        onClick={() => setSuccessData(null)}
+                        className="done-btn"
+                        style={{ marginTop: '1.5rem' }}
+                    >
                         Close & Finish
                     </button>
                 </div>
@@ -270,7 +314,7 @@ export default function CreateTeacherForm() {
                 }
                 label {
                     font-size: 0.875rem;
-                    fontWeight: 600;
+                    font-weight: 600;
                     color: var(--color-text-muted);
                 }
                 .regenerate-btn {
@@ -300,16 +344,17 @@ export default function CreateTeacherForm() {
                     width: 100%;
                     margin-top: 0.5rem;
                 }
-                
+
                 /* Modal Styles */
                 .success-modal-content {
                     display: flex;
                     flex-direction: column;
-                    gap: 1rem;
+                    gap: 0;
                     text-align: center;
+                    align-items: center;
                 }
                 .success-icon-wrapper {
-                    margin: 0 auto;
+                    margin: 0 auto 1.25rem;
                     color: var(--color-success);
                     background-color: rgba(76, 175, 80, 0.1);
                     width: 80px;
@@ -318,16 +363,20 @@ export default function CreateTeacherForm() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    flex-shrink: 0;
                 }
                 .modal-description {
                     color: var(--color-text-muted);
                     font-size: 0.875rem;
-                    margin-bottom: 1rem;
+                    margin: 0.75rem 0 1rem;
+                    line-height: 1.5;
                 }
                 .credential-stack {
                     display: flex;
                     flex-direction: column;
                     gap: 0.75rem;
+                    width: 100%;
+                    margin: 0 0 1rem;
                 }
                 .credential-item {
                     background-color: var(--color-bg);
@@ -337,51 +386,81 @@ export default function CreateTeacherForm() {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    gap: 1rem;
+                    width: 100%;
                 }
                 .item-labels {
                     text-align: left;
                     display: flex;
                     flex-direction: column;
-                    gap: 2px;
+                    gap: 4px;
+                    flex: 1;
+                    min-width: 0;
                 }
                 .item-tag {
                     font-size: 0.625rem;
                     font-weight: 700;
                     letter-spacing: 0.05em;
                     color: var(--color-text-muted);
+                    text-transform: uppercase;
                 }
                 .item-value {
                     font-weight: 600;
                     color: var(--color-text);
+                    word-break: break-all;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
                 }
                 .copy-btn {
                     background: none;
                     color: var(--color-primary);
                     padding: 8px;
                     min-height: auto;
+                    border: 1px solid transparent;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: all 150ms ease-out;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
                 }
                 .copy-btn:hover {
                     background: rgba(255, 140, 66, 0.1);
-                    transform: scale(1.1);
+                    border-color: var(--color-primary);
+                    transform: none;
                 }
                 .instruction-box {
                     background-color: rgba(255, 193, 7, 0.05);
-                    border: 1px dotted var(--color-warning);
+                    border: 1px solid rgba(255, 193, 7, 0.2);
                     border-radius: 8px;
-                    padding: 0.75rem 1rem;
+                    padding: 0.875rem 1rem;
                     display: flex;
                     gap: 0.75rem;
                     text-align: left;
                     font-size: 0.8125rem;
                     color: var(--color-text-muted);
+                    margin: 0 0 1rem;
+                    width: 100%;
+                    align-items: flex-start;
+                }
+                .instruction-box p {
+                    margin: 0;
+                    line-height: 1.4;
                 }
                 .done-btn {
                     background-color: var(--color-text);
                     color: var(--color-bg);
                     width: 100%;
-                    margin-top: 1rem;
+                    border: none;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    transition: all 150ms ease-out;
                 }
-                
+
                 @keyframes spin {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }

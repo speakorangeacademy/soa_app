@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { LayoutDashboard, FileText, Loader2 } from 'lucide-react'
 import PaymentFilterBar from '@/components/admin/payment-filter-bar'
@@ -47,34 +47,44 @@ export default function AdminPaymentsPage() {
         limit: 10
     })
 
+    // Debounce search so API only fires 400ms after user stops typing
+    const [debouncedSearch, setDebouncedSearch] = useState(filters.search)
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedSearch(filters.search), 400)
+        return () => clearTimeout(t)
+    }, [filters.search])
+
+    // Effective filters used in query (search is debounced, rest are immediate)
+    const queryFilters = { ...filters, search: debouncedSearch }
+
     // --- Queries ---
 
     // 1. Fetch Batches for Filter Dropdown
     const { data: batches } = useQuery({
         queryKey: ['admin-batch-list'],
         queryFn: () => fetch('/api/admin/batches/list').then(res => res.json()),
+        staleTime: 1000 * 60 * 5, // batches rarely change
         initialData: []
     })
 
     // 2. Fetch Payments with Filters
     const { data: paymentsData, isLoading, isError } = useQuery<PaginatedPayments>({
-        queryKey: ['admin-payments', filters],
+        queryKey: ['admin-payments', queryFilters],
         queryFn: async () => {
             const params = new URLSearchParams({
-                page: filters.page.toString(),
-                limit: filters.limit.toString(),
-                status: filters.status,
-                batchId: filters.batchId,
-                search: filters.search,
-                fromDate: filters.fromDate,
-                toDate: filters.toDate
+                page: queryFilters.page.toString(),
+                limit: queryFilters.limit.toString(),
+                status: queryFilters.status,
+                batchId: queryFilters.batchId,
+                search: queryFilters.search,
+                fromDate: queryFilters.fromDate,
+                toDate: queryFilters.toDate
             })
             const res = await fetch(`/api/admin/payments?${params}`)
             if (!res.ok) throw new Error('Failed to fetch payments')
             return res.json()
         },
         placeholderData: (prev: PaginatedPayments | undefined) => prev // Keep showing old data while new page loads
-
     })
 
     // --- Handlers ---

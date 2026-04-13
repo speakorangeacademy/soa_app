@@ -51,7 +51,7 @@ export default function ResponsiveNavbar() {
                         }}>
                             <span style={{ color: '#fff', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '18px' }}>S</span>
                         </div>
-                        <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '20px', color: '#2C2416' }}>SpeakOrange</span>
+                        <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '20px', color: '#2C2416' }}>SpeakOrange Academy</span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -159,7 +159,7 @@ export default function ResponsiveNavbar() {
                                 <div style={{ width: '36px', height: '36px', background: '#FF8C42', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <span style={{ color: '#fff', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '18px' }}>S</span>
                                 </div>
-                                <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '20px', color: '#2C2416' }}>SpeakOrange</span>
+                                <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '20px', color: '#2C2416' }}>SpeakOrange Academy</span>
                             </div>
                             <button
                                 onClick={() => setIsMenuOpen(false)}

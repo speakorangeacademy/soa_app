@@ -1,6 +1,11 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Normalize app_metadata role (e.g. "Super Admin" → "super_admin")
+function normalizeRole(appRole: string | undefined): string {
+    return (appRole || '').toLowerCase().replace(/\s+/g, '_')
+}
+
 export async function middleware(request: NextRequest) {
     let response = NextResponse.next({
         request: {
@@ -17,109 +22,63 @@ export async function middleware(request: NextRequest) {
                     return request.cookies.get(name)?.value
                 },
                 set(name: string, value: string, options: CookieOptions) {
-                    request.cookies.set({
-                        name,
-                        value,
-                        ...options,
-                    })
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    })
-                    response.cookies.set({
-                        name,
-                        value,
-                        ...options,
-                    })
+                    request.cookies.set({ name, value, ...options })
+                    response = NextResponse.next({ request: { headers: request.headers } })
+                    response.cookies.set({ name, value, ...options })
                 },
                 remove(name: string, options: CookieOptions) {
-                    request.cookies.set({
-                        name,
-                        value: '',
-                        ...options,
-                    })
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    })
-                    response.cookies.set({
-                        name,
-                        value: '',
-                        ...options,
-                    })
+                    request.cookies.set({ name, value: '', ...options })
+                    response = NextResponse.next({ request: { headers: request.headers } })
+                    response.cookies.set({ name, value: '', ...options })
                 },
             },
         }
     )
 
-    const { data: { user } } = await supabase.auth.getUser()
-    const session = !!user
+    // getSession reads JWT from cookie — zero network calls, no Supabase auth server round-trip
+    const { data: { session } } = await supabase.auth.getSession()
+    const user = session?.user ?? null
 
     const url = new URL(request.url)
     const path = url.pathname
-    console.log(`[MIDDLEWARE] Request for: ${path}`)
 
     // Public routes that don't require authentication
     const publicPaths = [
-        '/login', 
-        '/signup', 
-        '/register', 
-        '/forgot-password', 
-        '/auth/callback', 
+        '/login',
+        '/signup',
+        '/register',
+        '/forgot-password',
+        '/auth/callback',
         '/api/courses/public',
+        '/api/batches/public',
         '/api/register'
     ]
     const isPublicPath = path === '/' || publicPaths.some(p => path.startsWith(p))
 
     if (isPublicPath) {
-        if (session && user) {
-            // Use the unified 'users' table - much faster
-            const { data: appUser } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', user.id)
-                .single()
+        // Redirect logged-in users to their dashboard using JWT app_metadata (no DB query)
+        if (user) {
+            const role = normalizeRole(user.app_metadata?.app_role)
+            const dest = role === 'super_admin' ? '/super-admin/dashboard' :
+                         role === 'admin' ? '/admin/dashboard' :
+                         role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard'
 
-            if (appUser) {
-                const rawRole = appUser.role || ''
-                const role = rawRole.toLowerCase().replace(/\s+/g, '_')
-                const dest = role === 'super_admin' ? '/super-admin/dashboard' : 
-                             role === 'admin' ? '/admin/dashboard' : 
-                             role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard'
-                
-                // ONLY redirect if we are NOT already going to the destination or its sub-pages
-                if (!path.startsWith(dest)) {
-                    return NextResponse.redirect(new URL(dest, request.url))
-                }
+            if (!path.startsWith(dest)) {
+                return NextResponse.redirect(new URL(dest, request.url))
             }
         }
         return response
     }
 
-    if (!session || !user) {
+    if (!user) {
         const redirectUrl = new URL('/login', request.url)
         redirectUrl.searchParams.set('error', 'session_expired')
         return NextResponse.redirect(redirectUrl)
     }
 
-    // Resolve Role from unified users table
-    const { data: appUser, error: roleError } = await supabase
-        .from('users')
-        .select('role, status')
-        .eq('id', user.id)
-        .single()
+    // Role-based route protection using JWT app_metadata — no DB query needed
+    const role = normalizeRole(user.app_metadata?.app_role)
 
-    if (roleError || !appUser || appUser.status !== 'Active') {
-        console.log(`[MIDDLEWARE] Unauthorized access attempt for ${user.id}. Role error: ${roleError?.message}`)
-        return unauthorizedRedirect(request, 'account_not_found')
-    }
-
-    const rawRole = appUser.role || ''
-    const role = rawRole.toLowerCase().replace(/\s+/g, '_')
-
-    // Role-based route protection
     if (path.startsWith('/admin') && role !== 'admin' && role !== 'super_admin') {
         return unauthorizedRedirect(request)
     }

@@ -37,8 +37,12 @@ export default function BatchForm({ initialData, onSubmit, onCancel, isLoading }
 
     useEffect(() => {
         fetch('/api/batches/options')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load options')
+                return res.json()
+            })
             .then(data => setOptions(data))
+            .catch(err => console.error('BatchForm options fetch failed:', err))
     }, [])
 
     return (

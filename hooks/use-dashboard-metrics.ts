@@ -20,32 +20,12 @@ export function useDashboardMetrics() {
 
     // Setup Realtime Subscription
     useEffect(() => {
+        const invalidate = () => queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
         const channel = supabase
             .channel('dashboard-metrics-changes')
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'payments' },
-                () => {
-                    console.log('Realtime: Payments changed');
-                    queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
-                }
-            )
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'batch_enrollments' },
-                () => {
-                    console.log('Realtime: Enrollments changed');
-                    queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
-                }
-            )
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'batches' },
-                () => {
-                    console.log('Realtime: Batches changed');
-                    queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
-                }
-            )
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, invalidate)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'batch_enrollments' }, invalidate)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'batches' }, invalidate)
             .subscribe();
 
         return () => {

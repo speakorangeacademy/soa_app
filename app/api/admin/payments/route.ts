@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 
 /**
@@ -33,15 +34,16 @@ export async function GET(request: Request) {
         const toDate = searchParams.get('toDate');
         const search = searchParams.get('search');
 
-        // 3. Build Query
-        let query = supabase
+        // 3. Build Query using admin client to bypass RLS
+        const adminClient = createAdminClient();
+        let query = adminClient
             .from('payments')
             .select(`
                 id:payment_id,
                 payment_date,
                 transaction_id,
                 payment_method,
-                amount,
+                fee_amount,
                 status:verification_status,
                 receipt_number,
                 verified_by,
@@ -121,7 +123,7 @@ export async function GET(request: Request) {
             batch_name: p.batches?.name || 'N/A',
             transaction_id: p.transaction_id,
             method: p.payment_method,
-            amount: p.amount,
+            amount: p.fee_amount,
             status: p.status,
             receipt_no: p.receipt_number,
             verified_by: p.verified_by, // You might want to fetch verifier name separately or join distinct

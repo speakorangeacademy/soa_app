@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 import { batchSchema } from '@/types/batch';
 
@@ -18,12 +19,14 @@ export async function PUT(
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const adminClient = createAdminClient();
+
     try {
         const body = await request.json();
         const validatedData = batchSchema.parse(body);
 
         // Verify capacity constraints
-        const { data: currentBatch } = await supabase
+        const { data: currentBatch } = await adminClient
             .from('batches')
             .select('current_enrollment_count')
             .eq('batch_id', params.id)
@@ -33,7 +36,7 @@ export async function PUT(
             return NextResponse.json({ error: 'Cannot reduce capacity below current enrollment.' }, { status: 400 });
         }
 
-        const { data, error } = await supabase
+        const { data, error } = await adminClient
             .from('batches')
             .update({
                 ...validatedData,

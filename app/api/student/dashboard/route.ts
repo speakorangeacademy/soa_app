@@ -30,7 +30,7 @@ export async function GET() {
                 .or(`email_address.eq.${email},mobile_number.eq.${phone}`)
                 .maybeSingle();
 
-            if (linkableStudent) {
+            if (linkableStudent && linkableStudent.is_active !== false) {
                 const { data: updatedStudent, error: linkError } = await supabase
                     .from('students')
                     .update({ user_id: user.id })
@@ -46,37 +46,37 @@ export async function GET() {
             return NextResponse.json({ error: 'Student profile not found. Please ensure you registered with the same email/phone.' }, { status: 404 });
         }
 
-        // 3. Fetch Latest Payment
-        const { data: payment, error: paymentError } = await supabase
-            .from('payments')
-            .select(`
-        *,
-        course:courses(course_name, total_fee),
-        receipt:receipts(receipt_number, receipt_pdf_path)
-      `)
-            .eq('student_id', student.student_id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        // 4. Fetch Enrollment (Active)
-        const { data: enrollment, error: enrollError } = await supabase
-            .from('batch_enrollments')
-            .select(`
-        *,
-        batch:batches(
-          *,
-          teacher:teachers(teacher_name)
-        )
-      `)
-            .eq('student_id', student.student_id)
-            .eq('allocation_status', 'Active')
-            .maybeSingle();
+        // 3 & 4. Fetch Payment and Enrollment in parallel
+        const [paymentResult, enrollmentResult] = await Promise.all([
+            supabase
+                .from('payments')
+                .select(`
+                    *,
+                    course:courses(course_name, total_fee),
+                    receipt:receipts(receipt_number, receipt_pdf_path)
+                `)
+                .eq('student_id', student.student_id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle(),
+            supabase
+                .from('batch_enrollments')
+                .select(`
+                    *,
+                    batch:batches(
+                        *,
+                        teacher:teachers(teacher_name)
+                    )
+                `)
+                .eq('student_id', student.student_id)
+                .eq('allocation_status', 'Active')
+                .maybeSingle()
+        ]);
 
         return NextResponse.json({
             student,
-            payment,
-            enrollment,
+            payment: paymentResult.data,
+            enrollment: enrollmentResult.data,
         });
 
     } catch (error: any) {

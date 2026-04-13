@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 import { paymentSubmissionSchema } from '@/types/payment';
 
@@ -16,7 +16,7 @@ async function sendEmail(payload: any) {
 }
 
 export async function POST(request: Request) {
-    const supabase = createClient();
+    const supabase = createAdminClient();
 
     try {
         const formData = await request.formData();

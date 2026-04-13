@@ -1,13 +1,13 @@
-import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-    const supabase = createClient();
+    const adminClient = createAdminClient();
 
-    // Publicly available courses that are active
-    const { data, error } = await supabase
+    // Publicly available courses that are active — admin client bypasses RLS
+    const { data, error } = await adminClient
         .from('courses')
-        .select('course_id, course_name, course_level, language, total_fee')
+        .select('course_id, course_name, course_level, language, total_fee, mode, course_duration')
         .eq('course_status', 'Active')
         .order('course_name');
 

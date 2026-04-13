@@ -33,31 +33,24 @@ export default function PaymentReuploadPage() {
 
     const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<ReuploadFormData>()
 
-    // 1. Fetch Payment Details
+    // 1. Fetch Payment Details — fetch directly via API, no redundant auth check
     const { data: payment, isLoading, error } = useQuery({
         queryKey: ['student', 'payment', payment_id],
         queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error('Unauthorized')
-
-            const res = await fetch('/api/student/dashboard') // Get current dashboard data for ease
+            const res = await fetch('/api/student/dashboard')
+            if (!res.ok) throw new Error('Unauthorized')
             const dashboardData = await res.json()
-
             const p = dashboardData.payment
-            if (!p || p.payment_id !== payment_id) {
-                // Alternative: Direct fetch if dashboard doesn't have it
-                const { data } = await supabase
-                    .from('payments')
-                    .select(`
-                *,
-                course:courses(course_name)
-            `)
-                    .eq('payment_id', payment_id)
-                    .single()
-                return data
-            }
-            return p
-        }
+            if (p && p.payment_id === payment_id) return p
+            // Fallback: fetch directly if dashboard payment doesn't match
+            const { data } = await supabase
+                .from('payments')
+                .select('*, course:courses(course_name)')
+                .eq('payment_id', payment_id)
+                .single()
+            return data
+        },
+        staleTime: 1000 * 30
     })
 
     // 2. Pre-fill transaction ID

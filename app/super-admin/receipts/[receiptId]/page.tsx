@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import ReceiptSummaryCard from '@/components/admin/receipts/receipt-summary-card';
 import CancellationForm from '@/components/admin/receipts/cancellation-form';
 import { LayoutDashboard, Receipt as ReceiptIcon } from 'lucide-react';
@@ -13,18 +13,8 @@ export default async function ReceiptManagementPage({ params }: PageProps) {
     const { receiptId } = params;
     const supabase = createClient();
 
-    // 1. Validate Session & Role
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-        redirect('/login');
-    }
-
-    const role = user.app_metadata?.app_role;
-    if (role !== 'Super Admin') {
-        redirect('/unauthorized');
-    }
-
-    // 2. Fetch Receipt Details
+    // Auth & role already verified by middleware — fetch data directly
+    // Fetch Receipt Details
     const { data: receipt, error: fetchError } = await supabase
         .from('receipts')
         .select(`

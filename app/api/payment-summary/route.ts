@@ -1,8 +1,8 @@
-import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-    const supabase = createClient();
+    const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get('student_id');
     const courseId = searchParams.get('course_id');

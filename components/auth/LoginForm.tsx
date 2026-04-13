@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { loginIdentifierSchema, LoginIdentifierInput } from '@/lib/validations'
 import { login } from '@/app/auth/actions'
 import { ApiError } from '@/components/common/ui'
-import { AtSign, Lock, Eye, EyeOff, LogIn, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, LogIn, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 
@@ -24,7 +24,8 @@ export function LoginForm({ onCreateAccount }: LoginFormProps) {
         formState: { errors, isSubmitting },
     } = useForm<LoginIdentifierInput>({
         resolver: zodResolver(loginIdentifierSchema),
-        mode: 'onBlur',
+        mode: 'onSubmit',
+        reValidateMode: 'onChange',
     })
 
     const onSubmit = async (data: LoginIdentifierInput) => {
@@ -64,21 +65,16 @@ export function LoginForm({ onCreateAccount }: LoginFormProps) {
                     Email or Mobile Number
                 </label>
                 <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted transition-colors group-focus-within:text-primary">
-                        <AtSign size={17} />
-                    </div>
                     <input
                         {...register('identifier')}
                         id="login-identifier"
                         type="text"
-                        // inputMode="email" lets mobile keyboards show @ but still allows
-                        // numeric entry — the user can switch if typing a mobile number
                         inputMode="email"
                         autoComplete="username"
                         spellCheck={false}
                         autoCapitalize="none"
                         className={`
-                            w-full pl-10 pr-4 py-3 bg-surface text-text
+                            w-full px-4 py-3 bg-surface text-text
                             border rounded-xl transition-all duration-200
                             focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
                             placeholder:text-muted/50 disabled:opacity-60
@@ -109,16 +105,13 @@ export function LoginForm({ onCreateAccount }: LoginFormProps) {
                     </Link>
                 </div>
                 <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted transition-colors group-focus-within:text-primary">
-                        <Lock size={17} />
-                    </div>
                     <input
                         {...register('password')}
                         id="login-password"
                         type={showPassword ? 'text' : 'password'}
                         autoComplete="current-password"
                         className={`
-                            w-full pl-10 pr-11 py-3 bg-surface text-text
+                            w-full pl-4 pr-11 py-3 bg-surface text-text
                             border rounded-xl transition-all duration-200
                             focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
                             placeholder:text-muted/50 disabled:opacity-60

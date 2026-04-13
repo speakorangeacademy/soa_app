@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 import { batchSchema } from '@/types/batch';
 
@@ -10,8 +11,10 @@ export async function GET() {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const adminClient = createAdminClient();
+
     // Join batches with courses and teachers
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
         .from('batches')
         .select(`
       *,
@@ -47,11 +50,13 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Forbidden: Super Admin access required' }, { status: 403 });
     }
 
+    const adminClient = createAdminClient();
+
     try {
         const body = await request.json();
         const validatedData = batchSchema.parse(body);
 
-        const { data, error } = await supabase
+        const { data, error } = await adminClient
             .from('batches')
             .insert({
                 ...validatedData,

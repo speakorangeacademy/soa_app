@@ -31,7 +31,17 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: true
+    reactStrictMode: true,
+    swcMinify: true,
+    compress: true,
+    // Tree-shake large icon/UI packages — only import what's used
+    experimental: {
+        optimizePackageImports: ['lucide-react', 'framer-motion', '@tanstack/react-query']
+    },
+    // Suppress noisy build warnings
+    logging: {
+        fetches: { fullUrl: false }
+    }
 }
 
 module.exports = withPWA(nextConfig)

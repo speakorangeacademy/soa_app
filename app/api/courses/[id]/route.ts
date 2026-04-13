@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 import { courseSchema } from '@/types/course';
 
@@ -22,7 +23,8 @@ export async function PUT(
         const body = await request.json();
         const validatedData = courseSchema.parse(body);
 
-        const { data, error } = await supabase
+        const adminClient = createAdminClient();
+        const { data, error } = await adminClient
             .from('courses')
             .update({
                 ...validatedData,
@@ -69,7 +71,8 @@ export async function PATCH(
             return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
         }
 
-        const { data, error } = await supabase
+        const adminClient = createAdminClient();
+        const { data, error } = await adminClient
             .from('courses')
             .update({
                 course_status: 'Inactive',

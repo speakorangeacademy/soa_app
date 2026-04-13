@@ -36,7 +36,8 @@ export async function GET() {
                 )
             `)
             .eq('verification_status', 'Pending')
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            .limit(50);
 
         if (error) {
             console.error('Pending payments fetch error:', error);

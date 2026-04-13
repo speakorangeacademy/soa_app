@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 import { courseSchema } from '@/types/course';
 
@@ -10,7 +11,8 @@ export async function GET() {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    const adminClient = createAdminClient();
+    const { data, error } = await adminClient
         .from('courses')
         .select('*')
         .order('created_at', { ascending: false });
@@ -39,7 +41,8 @@ export async function POST(request: Request) {
         const body = await request.json();
         const validatedData = courseSchema.parse(body);
 
-        const { data, error } = await supabase
+        const adminClient = createAdminClient();
+        const { data, error } = await adminClient
             .from('courses')
             .insert({
                 ...validatedData,

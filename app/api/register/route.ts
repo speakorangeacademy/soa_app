@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { NextResponse } from 'next/server';
 import { studentRegistrationSchema } from '@/types/registration';
 
@@ -16,7 +16,7 @@ async function sendEmail(payload: any) {
 }
 
 export async function POST(request: Request) {
-    const supabase = createClient();
+    const supabase = createAdminClient();
 
     try {
         const body = await request.json();
@@ -97,13 +97,14 @@ export async function POST(request: Request) {
         }
 
         // 5. Success - trigger email and return IDs for payment initiation
+        const courseName = (batch as any)?.courses?.course_name ?? 'your course';
         sendEmail({
             email_type: 'REGISTRATION_CONFIRMATION',
             recipient_email: email_address,
             recipient_name: student_full_name,
             metadata: {
                 student_name: student_full_name,
-                course_name: (batch as any).courses.course_name
+                course_name: courseName
             }
         });
 

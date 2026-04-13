@@ -61,15 +61,17 @@ export default function CoursePage({ role }: CoursePageProps) {
 
             const result = await res.json()
 
-            if (res.ok) {
-                showToast('success', editingCourse ? 'Course updated successfully' : 'Course created successfully')
-                setIsModalOpen(false)
-                fetchCourses()
-            } else {
-                showToast('error', result.error || 'Something went wrong')
+            if (!res.ok) {
+                throw new Error(result.error || `Failed to ${editingCourse ? 'update' : 'create'} course. Status: ${res.status}`)
             }
-        } catch (err) {
-            showToast('error', 'Failed to save course')
+
+            showToast('success', editingCourse ? 'Course updated successfully' : 'Course created successfully')
+            setIsModalOpen(false)
+            setEditingCourse(null)
+            await fetchCourses()
+        } catch (err: any) {
+            console.error('Course submission error:', err)
+            showToast('error', err.message || `Failed to ${editingCourse ? 'update' : 'save'} course`)
         } finally {
             setFormLoading(false)
         }
@@ -134,7 +136,7 @@ export default function CoursePage({ role }: CoursePageProps) {
                 {isSuperAdmin && (
                     <button onClick={() => { setEditingCourse(null); setIsModalOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '16px' }}>
                         <span style={{ fontSize: '20px', fontWeight: 700, marginRight: '4px' }}>+</span>
-                        Add New Features
+                        Add New Course
                     </button>
                 )}
             </div>
