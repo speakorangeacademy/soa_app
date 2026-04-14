@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { X } from 'lucide-react'
+import { X, RefreshCcw } from 'lucide-react'
 
 /**
  * ═══════════════════════════════════════════════════════════════════
@@ -181,19 +181,19 @@ export function SheetDescription({ children, className = '' }: {
  * BADGE - Small, semantic indicator component
  * ═══════════════════════════════════════════════════════════════════
  */
-export function Badge({ 
-    children, 
+export function Badge({
+    children,
     variant = 'default',
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    variant?: 'success' | 'warning' | 'danger' | 'primary' | 'outline' | 'muted' | 'default'
-    className?: string 
+    className = '',
+    ...rest
+}: React.HTMLAttributes<HTMLSpanElement> & {
+    variant?: 'success' | 'warning' | 'danger' | 'primary' | 'outline' | 'muted' | 'default' | 'destructive'
 }) {
-    const variants = {
+    const variants: Record<string, string> = {
         success: 'badge badge--success',
         warning: 'badge badge--warning',
         danger: 'badge badge--danger',
+        destructive: 'badge badge--danger',
         primary: 'badge',
         muted: 'badge badge--muted',
         outline: 'badge badge--outline',
@@ -201,7 +201,7 @@ export function Badge({
     }
 
     return (
-        <span className={`${variants[variant]} ${className}`}>
+        <span className={`${variants[variant!] ?? 'badge'} ${className}`} {...rest}>
             {children}
         </span>
     )
@@ -212,87 +212,56 @@ export function Badge({
  * CARD - Container component for grouped content
  * ═══════════════════════════════════════════════════════════════════
  */
-export function Card({ 
-    children, 
+export function Card({
+    children,
     className = '',
-    elevated = false 
-}: { 
-    children?: React.ReactNode
-    className?: string
-    elevated?: boolean 
+    elevated = false,
+    ...rest
+}: React.HTMLAttributes<HTMLDivElement> & {
+    elevated?: boolean
 }) {
     return (
-        <div className={`card ${elevated ? 'card--elevated' : ''} ${className}`}>
+        <div className={`card ${elevated ? 'card--elevated' : ''} ${className}`} {...rest}>
             {children}
         </div>
     )
 }
 
-export function CardHeader({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
+export function CardHeader({ children, className = '', ...rest }: React.HTMLAttributes<HTMLDivElement>) {
     return (
-        <div className={`pb-4 border-b border-border ${className}`}>
+        <div className={`pb-4 border-b border-border ${className}`} {...rest}>
             {children}
         </div>
     )
 }
 
-export function CardTitle({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
+export function CardTitle({ children, className = '', ...rest }: React.HTMLAttributes<HTMLHeadingElement>) {
     return (
-        <h3 className={`text-xl font-heading font-bold text-text ${className}`}>
+        <h3 className={`text-xl font-heading font-bold text-text ${className}`} {...rest}>
             {children}
         </h3>
     )
 }
 
-export function CardDescription({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
+export function CardDescription({ children, className = '', ...rest }: React.HTMLAttributes<HTMLParagraphElement>) {
     return (
-        <p className={`text-sm text-muted mt-2 ${className}`}>
+        <p className={`text-sm text-muted mt-2 ${className}`} {...rest}>
             {children}
         </p>
     )
 }
 
-export function CardContent({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
+export function CardContent({ children, className = '', ...rest }: React.HTMLAttributes<HTMLDivElement>) {
     return (
-        <div className={`pt-4 ${className}`}>
+        <div className={`pt-4 ${className}`} {...rest}>
             {children}
         </div>
     )
 }
 
-export function CardFooter({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
+export function CardFooter({ children, className = '', ...rest }: React.HTMLAttributes<HTMLDivElement>) {
     return (
-        <div className={`pt-4 border-t border-border mt-6 flex gap-4 ${className}`}>
+        <div className={`pt-4 border-t border-border mt-6 flex gap-4 ${className}`} {...rest}>
             {children}
         </div>
     )
@@ -321,22 +290,12 @@ export function Table({
     )
 }
 
-export function TableHeader({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
-    return <thead className={`border-b border-border bg-bg/50 sticky top-0 z-10 ${className}`}>{children}</thead>
+export function TableHeader({ children, className = '', ...rest }: React.HTMLAttributes<HTMLTableSectionElement>) {
+    return <thead className={`border-b border-border bg-bg/50 sticky top-0 z-10 ${className}`} {...rest}>{children}</thead>
 }
 
-export function TableBody({ 
-    children 
-}: { 
-    children?: React.ReactNode 
-}) {
-    return <tbody>{children}</tbody>
+export function TableBody({ children, ...rest }: React.HTMLAttributes<HTMLTableSectionElement>) {
+    return <tbody {...rest}>{children}</tbody>
 }
 
 export function TableRow({ 
@@ -355,29 +314,17 @@ export function TableRow({
     )
 }
 
-export function TableHead({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
+export function TableHead({ children, className = '', ...rest }: React.ThHTMLAttributes<HTMLTableCellElement>) {
     return (
-        <th className={`px-4 py-3 text-left align-middle font-semibold text-muted text-sm ${className}`}>
+        <th className={`px-4 py-3 text-left align-middle font-semibold text-muted text-sm ${className}`} {...rest}>
             {children}
         </th>
     )
 }
 
-export function TableCell({ 
-    children, 
-    className = '' 
-}: { 
-    children?: React.ReactNode
-    className?: string 
-}) {
+export function TableCell({ children, className = '', ...rest }: React.TdHTMLAttributes<HTMLTableCellElement>) {
     return (
-        <td className={`px-4 py-3 align-middle text-text ${className}`}>
+        <td className={`px-4 py-3 align-middle text-text ${className}`} {...rest}>
             {children}
         </td>
     )
@@ -388,23 +335,19 @@ export function TableCell({
  * BUTTON - Primary interactive component
  * ═══════════════════════════════════════════════════════════════════
  */
-export function Button({ 
-    children, 
-    onClick, 
-    variant = 'primary', 
-    size = 'md', 
-    className = '', 
-    disabled = false, 
+export function Button({
+    children,
+    onClick,
+    variant = 'primary',
+    size = 'md',
+    className = '',
+    disabled = false,
     type = 'button',
-    loading = false 
-}: {
-    children?: React.ReactNode
-    onClick?: React.MouseEventHandler<HTMLButtonElement>
+    loading = false,
+    ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'ghost'
     size?: 'sm' | 'md' | 'lg'
-    className?: string
-    disabled?: boolean
-    type?: 'button' | 'submit' | 'reset'
     loading?: boolean
 }) {
     const variants = {
@@ -427,7 +370,8 @@ export function Button({
             type={type}
             onClick={onClick}
             disabled={disabled || loading}
-            className={`${variants[variant]} ${sizes[size]} ${loading ? 'opacity-70' : ''} ${className}`}
+            className={`${variants[variant!]} ${sizes[size!]} ${loading ? 'opacity-70' : ''} ${className}`}
+            {...rest}
         >
             {loading ? (
                 <>
@@ -504,19 +448,15 @@ export function Select({
  * LABEL - Form label component
  * ═══════════════════════════════════════════════════════════════════
  */
-export function Label({ 
-    children, 
-    className = '', 
+export function Label({
+    children,
+    className = '',
     htmlFor,
-    required = false 
-}: { 
-    children?: React.ReactNode
-    className?: string
-    htmlFor?: string
-    required?: boolean 
-}) {
+    required = false,
+    ...rest
+}: React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }) {
     return (
-        <label htmlFor={htmlFor} className={`form-label ${required ? 'form-label--required' : ''} ${className}`}>
+        <label htmlFor={htmlFor} className={`form-label ${required ? 'form-label--required' : ''} ${className}`} {...rest}>
             {children}
         </label>
     )
