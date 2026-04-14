@@ -170,7 +170,7 @@ export default function StudentLookupPage() {
                                         <User size={24} />
                                     </div>
                                     <div>
-                                        <h2 style={{ fontSize: '1.25rem' }}>{student.first_name || student.student_full_name} {student.last_name || ''}</h2>
+                                        <h2 style={{ fontSize: '1.25rem' }}>{student.first_name} {student.last_name || ''}</h2>
                                         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>ID: {student.student_id}</p>
                                     </div>
                                     {error && (
