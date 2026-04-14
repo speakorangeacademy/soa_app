@@ -112,7 +112,7 @@ export default function CourseEnrollmentReportPage() {
 
                 {/* Summary Metrics */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <Card className="border-none shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-500 delay-[60ms]">
+                    <Card className="border-none shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:60ms]">
                         <CardContent className="p-6 flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                                 <TrendingUp size={24} />
@@ -125,7 +125,7 @@ export default function CourseEnrollmentReportPage() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-500 delay-[120ms]">
+                    <Card className="border-none shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:120ms]">
                         <CardContent className="p-6 flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
                                 <BarChart3 size={24} />
@@ -143,7 +143,7 @@ export default function CourseEnrollmentReportPage() {
                 {/* Chart & Table Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Enrollment Chart */}
-                    <Card className="lg:col-span-2 border-none shadow-xl shadow-border/20 overflow-visible animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[180ms]">
+                    <Card className="lg:col-span-2 border-none shadow-xl shadow-border/20 overflow-visible animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:180ms]">
                         <CardHeader className="bg-white/60 backdrop-blur-sm border-b border-border/50 p-6 flex items-center justify-between rounded-t-xl">
                             <h2 className="text-lg font-heading font-semibold text-text">Enrollment Distribution</h2>
                             <Badge variant="outline" className="bg-bg">Visualization</Badge>
@@ -162,7 +162,7 @@ export default function CourseEnrollmentReportPage() {
                     </Card>
 
                     {/* Enrollment Details Table */}
-                    <Card className="border-none shadow-xl shadow-border/20 overflow-visible animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[240ms]">
+                    <Card className="border-none shadow-xl shadow-border/20 overflow-visible animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:240ms]">
                         <CardHeader className="bg-white/60 backdrop-blur-sm border-b border-border/50 p-6 flex items-center justify-between rounded-t-xl">
                             <h2 className="text-lg font-heading font-semibold text-text">Breakdown</h2>
                         </CardHeader>

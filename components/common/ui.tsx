@@ -303,15 +303,17 @@ export function CardFooter({
  * TABLE - Data display component
  * ═══════════════════════════════════════════════════════════════════
  */
-export function Table({ 
-    children, 
-    className = '' 
-}: { 
+export function Table({
+    children,
+    className = '',
+    containerClassName = ''
+}: {
     children?: React.ReactNode
-    className?: string 
+    className?: string
+    containerClassName?: string
 }) {
     return (
-        <div className="w-full overflow-x-auto rounded-lg border border-border shadow-sm">
+        <div className={`w-full overflow-x-auto rounded-lg border border-border shadow-sm ${containerClassName}`}>
             <table className={`w-full text-sm bg-surface ${className}`}>
                 {children}
             </table>
