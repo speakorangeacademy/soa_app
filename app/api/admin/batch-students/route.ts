@@ -34,7 +34,7 @@ export async function GET(
                 batch_timing,
                 start_date,
                 courses (course_name),
-                teachers (full_name)
+                teachers (teacher_name)
             `)
             .eq('batch_id', batchId)
             .single()
@@ -101,7 +101,7 @@ export async function GET(
                 timing: batch.batch_timing,
                 startDate: batch.start_date,
                 course: (batch.courses as any)?.course_name,
-                teacher: (batch.teachers as any)?.full_name
+                teacher: (batch.teachers as any)?.teacher_name
             },
             students: formattedStudents
         })

@@ -65,7 +65,7 @@ async function assignTeacherHandler(request: Request) {
                     metadata: {
                         teacher_name: teacher.name,
                         batch_name: batch.batch_name,
-                        course_name: batch.courses?.course_name || 'N/A',
+                        course_name: (batch.courses as any)?.course_name || 'N/A',
                         batch_timing: batch.batch_timing,
                         start_date: batch.start_date
                     }
