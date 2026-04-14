@@ -6,10 +6,10 @@ import Navbar from './navbar'
 
 export default function SuperAdminShell({
     children,
-    adminName
+    adminName = ''
 }: {
     children: React.ReactNode,
-    adminName: string
+    adminName?: string
 }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 

@@ -136,9 +136,10 @@ export function Sheet({ open, onOpenChange, children }: {
     )
 }
 
-export function SheetContent({ children, className = '' }: { 
+export function SheetContent({ children, className = '', style }: { 
     children?: React.ReactNode
-    className?: string 
+    className?: string
+    style?: React.CSSProperties
 }) {
     return (
         <div
@@ -148,6 +149,7 @@ export function SheetContent({ children, className = '' }: {
                 animate-slide-in-right overflow-y-auto
                 ${className}
             `}
+            style={style}
             onClick={(e) => e.stopPropagation()}
         >
             {children}
@@ -187,13 +189,14 @@ export function Badge({
     className = '',
     ...rest
 }: React.HTMLAttributes<HTMLSpanElement> & {
-    variant?: 'success' | 'warning' | 'danger' | 'primary' | 'outline' | 'muted' | 'default' | 'destructive'
+    variant?: 'success' | 'warning' | 'danger' | 'primary' | 'outline' | 'muted' | 'default' | 'destructive' | 'info'
 }) {
     const variants: Record<string, string> = {
         success: 'badge badge--success',
         warning: 'badge badge--warning',
         danger: 'badge badge--danger',
         destructive: 'badge badge--danger',
+        info: 'badge',
         primary: 'badge',
         muted: 'badge badge--muted',
         outline: 'badge badge--outline',
@@ -347,7 +350,7 @@ export function Button({
     ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'ghost'
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'sm' | 'md' | 'lg' | 'icon'
     loading?: boolean
 }) {
     const variants = {
@@ -362,7 +365,8 @@ export function Button({
     const sizes = {
         sm: 'btn--sm',
         md: '',
-        lg: 'btn--lg'
+        lg: 'btn--lg',
+        icon: 'btn--sm'
     }
 
     return (

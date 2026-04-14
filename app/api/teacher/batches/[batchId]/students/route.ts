@@ -59,19 +59,22 @@ export async function GET(
 
         const formattedStudents = enrollments
             .filter(e => e.students)
-            .map(e => ({
-                id: e.students.student_id,
-                name: e.students.student_full_name,
-                parent_name: e.students.parent_name || 'N/A',
-                email: e.students.email_address || 'N/A',
-                mobile: e.students.mobile_number,
+            .map(e => {
+                const student = Array.isArray(e.students) ? e.students[0] : e.students as { student_id: any; student_full_name: any; parent_name: any; email_address: any; mobile_number: any };
+                return {
+                id: student.student_id,
+                name: student.student_full_name,
+                parent_name: student.parent_name || 'N/A',
+                email: student.email_address || 'N/A',
+                mobile: student.mobile_number,
                 enrollment_date: e.enrollment_date,
                 id_card_distributed: e.id_card_distributed || false,
                 id_card_distributed_at: e.id_card_distributed_at,
                 books_distributed: e.books_distributed || false,
                 books_distributed_at: e.books_distributed_at,
                 batch_id: batchId
-            }));
+            };
+            });
 
         return NextResponse.json(formattedStudents);
 

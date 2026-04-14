@@ -268,7 +268,7 @@ export default function StudentDashboard() {
                             </div>
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                                <div style={{ flex: 1, spaceY: '1rem' }}>
+                                <div>
                                     <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem', marginBottom: '1rem' }}>
                                         <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>Course Enrolled</p>
                                         <p style={{ fontWeight: 600, fontSize: '1.125rem' }}>{payment.course.course_name}</p>

@@ -3,7 +3,7 @@
 import React from 'react'
 import { Search, Filter, Calendar, X } from 'lucide-react'
 import {
-    Select,
+    SelectRoot,
     SelectContent,
     SelectItem,
     SelectTrigger,
@@ -56,7 +56,7 @@ export default function PaymentFilterBar({ filters, setFilters, batches }: Filte
                 </div>
 
                 {/* Status Filter */}
-                <Select value={filters.status} onValueChange={(val) => handleChange('status', val)}>
+                <SelectRoot value={filters.status} onValueChange={(val) => handleChange('status', val)}>
                     <SelectTrigger style={{ width: '140px' }}>
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
@@ -66,10 +66,10 @@ export default function PaymentFilterBar({ filters, setFilters, batches }: Filte
                         <SelectItem value="Approved">Approved</SelectItem>
                         <SelectItem value="Rejected">Rejected</SelectItem>
                     </SelectContent>
-                </Select>
+                </SelectRoot>
 
                 {/* Batch Filter */}
-                <Select value={filters.batchId} onValueChange={(val) => handleChange('batchId', val)}>
+                <SelectRoot value={filters.batchId} onValueChange={(val) => handleChange('batchId', val)}>
                     <SelectTrigger style={{ width: '180px' }}>
                         <SelectValue placeholder="Select Batch" />
                     </SelectTrigger>
@@ -79,7 +79,7 @@ export default function PaymentFilterBar({ filters, setFilters, batches }: Filte
                             <SelectItem key={batch.id} value={batch.id}>{batch.name}</SelectItem>
                         ))}
                     </SelectContent>
-                </Select>
+                </SelectRoot>
 
                 {/* Date Range */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

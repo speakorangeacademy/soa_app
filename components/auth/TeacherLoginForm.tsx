@@ -82,7 +82,7 @@ export function TeacherLoginForm() {
             </InlineButtonLoader>
 
             <div className="text-center pt-2">
-                <a href="/auth/forgot-password" size="sm" className="text-xs font-semibold text-muted hover:text-primary transition-colors">
+                <a href="/auth/forgot-password" className="text-xs font-semibold text-muted hover:text-primary transition-colors">
                     Trouble signing in? Reset Password
                 </a>
             </div>
