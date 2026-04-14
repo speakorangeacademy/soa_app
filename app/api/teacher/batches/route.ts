@@ -52,7 +52,7 @@ export async function GET() {
             capacity: batch.max_capacity,
             enrollment_count: batch.current_enrollment_count,
             status: batch.batch_status,
-            course_name: batch.courses?.course_name || 'Unknown Course'
+            course_name: (batch.courses as any)?.course_name || 'Unknown Course'
         }));
 
         return NextResponse.json(formattedBatches);

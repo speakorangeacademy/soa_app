@@ -54,8 +54,8 @@ async function getStudentHandler(
             ...student,
             enrollment_status: latestEnrollment?.allocation_status || 'Not Enrolled',
             admission_date: student.admission_date,
-            course_name: latestEnrollment?.batches?.courses?.course_name || 'N/A',
-            batch_name: latestEnrollment?.batches?.batch_name || 'N/A'
+            course_name: (latestEnrollment?.batches as any)?.courses?.course_name || 'N/A',
+            batch_name: (latestEnrollment?.batches as any)?.batch_name || 'N/A'
         };
 
         return NextResponse.json(formattedStudent);

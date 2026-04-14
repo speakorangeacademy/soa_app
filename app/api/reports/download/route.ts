@@ -71,8 +71,8 @@ export async function GET(request: Request) {
             data = admissions?.map(s => ({
                 'Student Name': s.student_full_name,
                 'Email': s.email_address,
-                'Course Name': s.batch_enrollments?.[0]?.batches?.courses?.course_name || 'N/A',
-                'Batch Name': s.batch_enrollments?.[0]?.batches?.batch_name || 'N/A',
+                'Course Name': (s.batch_enrollments?.[0]?.batches as any)?.courses?.course_name || 'N/A',
+                'Batch Name': (s.batch_enrollments?.[0]?.batches as any)?.batch_name || 'N/A',
                 'Admission Date': new Date(s.created_at).toLocaleDateString()
             })) || [];
 
@@ -100,11 +100,11 @@ export async function GET(request: Request) {
             if (dbError) throw dbError;
 
             data = revenue?.map(r => ({
-                'Student Name': r.students?.student_full_name || 'Unknown',
+                'Student Name': (r.students as any)?.student_full_name || 'Unknown',
                 'Receipt Number': r.receipt_number || 'N/A',
                 'Amount': r.amount,
                 'Payment Date': r.payment_date,
-                'Course Name': r.batches?.courses?.course_name || 'N/A'
+                'Course Name': (r.batches as any)?.courses?.course_name || 'N/A'
             })) || [];
 
         } else if (reportType === 'Batch-wise') {
@@ -126,7 +126,7 @@ export async function GET(request: Request) {
 
             data = batches?.map(b => ({
                 'Batch Name': b.batch_name,
-                'Course Name': b.courses?.course_name || 'N/A',
+                'Course Name': (b.courses as any)?.course_name || 'N/A',
                 'Current Enrollment': b.batch_enrollments?.[0]?.count || 0,
                 'Max Capacity': b.max_capacity,
                 'Status': b.status
@@ -149,7 +149,7 @@ export async function GET(request: Request) {
 
             const counts: Record<string, number> = {};
             enrollments?.forEach(e => {
-                const name = e.batches?.courses?.course_name || 'Unknown';
+                const name = (e.batches as any)?.courses?.course_name || 'Unknown';
                 counts[name] = (counts[name] || 0) + 1;
             });
 

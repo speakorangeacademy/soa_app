@@ -51,7 +51,7 @@ export async function GET() {
             capacity: batch.max_capacity,
             enrollment_count: batch.current_enrollment_count,
             teacher_id: batch.teacher_id,
-            course_name: batch.courses?.course_name || 'N/A'
+            course_name: (batch.courses as any)?.course_name || 'N/A'
         }));
 
         return NextResponse.json(formattedBatches);
